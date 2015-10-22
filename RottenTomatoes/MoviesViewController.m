@@ -28,12 +28,18 @@
     self.tableView.delegate = self;
     self.title = @"Movies";
     [self setUpRefreshControl];
-    [self fetchMovies];
+    [self fetchMoviesForFirstTime];
 }
 
-- (void)fetchMovies {
-    self.errorLoading = NO;
+- (void)fetchMoviesForFirstTime {
     [KVNProgress show];
+    [self fetchMoviesWithCompletion:^void() {
+        [KVNProgress dismiss];
+    }];
+}
+
+- (void)fetchMoviesWithCompletion:(void (^)())completionBlock {
+    self.errorLoading = NO;
 
     NSString *urlString = @"https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json";
     NSURL *url = [NSURL URLWithString:urlString];
@@ -48,8 +54,7 @@
                                             completionHandler:^(NSData * _Nullable data,
                                                                 NSURLResponse * _Nullable response,
                                                                 NSError * _Nullable error) {
-                                                [KVNProgress dismiss];
-                                                [self.refreshControl endRefreshing];
+                                                completionBlock();
                                                 if (!error) {
                                                     NSError *jsonError = nil;
                                                     NSDictionary *responseDictionary =
@@ -107,8 +112,14 @@
 
 - (void)setUpRefreshControl {
     self.refreshControl = [[UIRefreshControl alloc] init];
-    [self.refreshControl addTarget:self action:@selector(fetchMovies) forControlEvents:UIControlEventValueChanged];
+    [self.refreshControl addTarget:self action:@selector(fetchMoviesFromRefreshControl) forControlEvents:UIControlEventValueChanged];
     [self.tableView addSubview:self.refreshControl];
+}
+
+- (void)fetchMoviesFromRefreshControl {
+    [self fetchMoviesWithCompletion:^void() {
+        [self.refreshControl endRefreshing];
+    }];
 }
 
 - (void)didReceiveMemoryWarning {
