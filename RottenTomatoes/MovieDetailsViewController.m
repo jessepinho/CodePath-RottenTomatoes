@@ -30,8 +30,10 @@
 }
 
 - (NSURL *)getPosterImageURL {
-    NSString *thumbnailURLString = self.movie[@"posters"][@"original"];
-    return [NSURL URLWithString:thumbnailURLString];
+    NSString *originalPosterURL = self.movie[@"posters"][@"original"];
+    NSRange range = [originalPosterURL rangeOfString:@".*cloudfront.net/" options:NSRegularExpressionSearch];
+    NSString *highResPosterURL = [originalPosterURL stringByReplacingCharactersInRange:range withString:@"https://content6.flixster.com/"];
+    return [NSURL URLWithString:highResPosterURL];
 }
 
 - (void)didReceiveMemoryWarning {
