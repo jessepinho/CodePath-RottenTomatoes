@@ -15,6 +15,7 @@
 @interface MoviesViewController () <UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSArray *movies;
+@property (nonatomic) BOOL errorLoading;
 
 @end
 
@@ -29,6 +30,7 @@
 }
 
 - (void)fetchMovies {
+    self.errorLoading = NO;
     [KVNProgress show];
     NSString *urlString = @"https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json";
     
@@ -51,28 +53,46 @@
                                                     [NSJSONSerialization JSONObjectWithData:data
                                                                                     options:kNilOptions
                                                                                       error:&jsonError];
-                                                    NSLog(@"Response: %@", responseDictionary);
                                                     self.movies = responseDictionary[@"movies"];
-                                                    [self.tableView reloadData];
                                                 } else {
-                                                    NSLog(@"An error occurred: %@", error.description);
+                                                    self.errorLoading = YES;
                                                 }
+                                                [self.tableView reloadData];
                                             }];
     [task resume];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.movies.count;
+    if (self.errorLoading) {
+        return 1 + self.movies.count;
+    } else {
+        return self.movies.count;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger rowNumber = indexPath.row;
+    if (self.errorLoading) {
+        if (indexPath.row == 0) {
+            UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"errorCell"];
+            return cell;
+        }
+        rowNumber += 1;
+    }
     MoviesTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"movieCell"];
-    cell.titleLabel.text = self.movies[indexPath.row][@"title"];
-    cell.synopsisLabel.text = self.movies[indexPath.row][@"synopsis"];
-    NSURL *url = [NSURL URLWithString:self.movies[indexPath.row][@"posters"][@"thumbnail"]];
+    cell.titleLabel.text = self.movies[rowNumber][@"title"];
+    cell.synopsisLabel.text = self.movies[rowNumber][@"synopsis"];
+    NSURL *url = [NSURL URLWithString:self.movies[rowNumber][@"posters"][@"thumbnail"]];
     [cell.posterImageView setImageWithURL:url];
-    
+
     return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (self.errorLoading && indexPath.row == 0) {
+        return 50;
+    }
+    return 100;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
