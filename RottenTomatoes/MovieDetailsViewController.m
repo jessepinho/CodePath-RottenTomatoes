@@ -11,6 +11,7 @@
 
 @interface MovieDetailsViewController ()
 @property (weak, nonatomic) IBOutlet UIImageView *posterImageView;
+@property (weak, nonatomic) IBOutlet UIScrollView *synopsisLabelContainer;
 @property (weak, nonatomic) IBOutlet UILabel *synopsisLabel;
 
 @end
@@ -23,6 +24,7 @@
     [self setTitle:[self getTitle]];
     self.synopsisLabel.text = self.movie[@"synopsis"];
     [self.synopsisLabel sizeToFit];
+    self.synopsisLabelContainer.contentSize = CGSizeMake(self.synopsisLabel.bounds.size.width, self.synopsisLabel.bounds.size.height);
 }
 
 - (NSString *)getTitle {
