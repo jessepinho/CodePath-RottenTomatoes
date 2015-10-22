@@ -20,11 +20,14 @@ PODS:
   - AFNetworking/UIKit (2.6.1):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - KVNProgress (2.2.1)
 
 DEPENDENCIES:
   - AFNetworking
+  - KVNProgress
 
 SPEC CHECKSUMS:
   AFNetworking: 8e4e60500beb8bec644cf575beee72990a76d399
+  KVNProgress: 7001d2d16a2755cee5599e8e485befe056f2197b
 
-COCOAPODS: 0.39.0
+COCOAPODS: 0.38.2

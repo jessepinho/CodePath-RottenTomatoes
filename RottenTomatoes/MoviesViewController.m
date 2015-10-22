@@ -10,6 +10,7 @@
 #import "MoviesTableViewCell.h"
 #import "UIImageView+AFNetworking.h"
 #import "MovieDetailsViewController.h"
+#import <KVNProgress/KVNProgress.h>
 
 @interface MoviesViewController () <UITableViewDataSource, UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -28,6 +29,7 @@
 }
 
 - (void)fetchMovies {
+    [KVNProgress show];
     NSString *urlString = @"https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json";
     
     NSURL *url = [NSURL URLWithString:urlString];
@@ -42,6 +44,7 @@
                                             completionHandler:^(NSData * _Nullable data,
                                                                 NSURLResponse * _Nullable response,
                                                                 NSError * _Nullable error) {
+                                                [KVNProgress dismiss];
                                                 if (!error) {
                                                     NSError *jsonError = nil;
                                                     NSDictionary *responseDictionary =
@@ -75,6 +78,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     MovieDetailsViewController *vc = [[MovieDetailsViewController alloc] init];
+    vc.movie = self.movies[indexPath.row];
     [self.navigationController pushViewController:vc animated:YES];
 }
 

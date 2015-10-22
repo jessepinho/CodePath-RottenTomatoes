@@ -5,4 +5,5 @@
 
 target "RottenTomatoes" do
   pod "AFNetworking"
+  pod "KVNProgress"
 end

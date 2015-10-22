@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface MovieDetailsViewController : UIViewController
-
+@property (strong, nonatomic) NSDictionary *movie;
 @end
