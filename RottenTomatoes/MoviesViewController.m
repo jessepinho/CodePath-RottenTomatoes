@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) NSArray *movies;
 @property (nonatomic) BOOL errorLoading;
+@property (strong, nonatomic) UIRefreshControl *refreshControl;
 
 @end
 
@@ -26,6 +27,7 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     self.title = @"Movies";
+    [self setUpRefreshControl];
     [self fetchMovies];
 }
 
@@ -33,20 +35,16 @@
     self.errorLoading = NO;
     [KVNProgress show];
     NSString *urlString = @"https://gist.githubusercontent.com/timothy1ee/d1778ca5b944ed974db0/raw/489d812c7ceeec0ac15ab77bf7c47849f2d1eb2b/gistfile1.json";
-    
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [[NSURLRequest alloc] initWithURL:url];
-    
-    NSURLSession *session =
-    [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
-                                  delegate:nil
-                             delegateQueue:[NSOperationQueue mainQueue]];
-    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
+
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request
                                             completionHandler:^(NSData * _Nullable data,
                                                                 NSURLResponse * _Nullable response,
                                                                 NSError * _Nullable error) {
                                                 [KVNProgress dismiss];
+                                                [self.refreshControl endRefreshing];
                                                 if (!error) {
                                                     NSError *jsonError = nil;
                                                     NSDictionary *responseDictionary =
@@ -100,6 +98,12 @@
     MovieDetailsViewController *vc = [[MovieDetailsViewController alloc] init];
     vc.movie = self.movies[indexPath.row];
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void)setUpRefreshControl {
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(fetchMovies) forControlEvents:UIControlEventValueChanged];
+    [self.tableView addSubview:self.refreshControl];
 }
 
 - (void)didReceiveMemoryWarning {
