@@ -40,7 +40,7 @@
             </subviews>
             <animations/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
-            <point key="canvasLocation" x="993" y="596"/>
+            <point key="canvasLocation" x="991" y="650"/>
         </view>
     </objects>
 </document>
