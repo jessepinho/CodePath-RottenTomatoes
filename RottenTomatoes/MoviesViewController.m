@@ -134,6 +134,21 @@
     [self.movieTableView reloadData];
 }
 
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [self dismissMovieSearchBar];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    self.movieSearchBar.text = @"";
+    self.search = @"";
+    [self dismissMovieSearchBar];
+}
+
+- (void)dismissMovieSearchBar {
+    [self.movieSearchBar endEditing:YES];
+    [self.movieTableView reloadData];
+}
+
 - (NSArray *)filteredMovies {
     if (!self.search || [self.search isEqualToString:@""]) {
         return self.movies;
