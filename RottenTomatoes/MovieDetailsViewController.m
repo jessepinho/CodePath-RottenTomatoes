@@ -11,7 +11,8 @@
 
 @interface MovieDetailsViewController ()
 @property (weak, nonatomic) IBOutlet UIImageView *posterImageView;
-@property (weak, nonatomic) IBOutlet UIScrollView *synopsisLabelContainer;
+@property (weak, nonatomic) IBOutlet UIScrollView *synopsisScrollView;
+@property (weak, nonatomic) IBOutlet UIView *synopsisLabelContainer;
 @property (weak, nonatomic) IBOutlet UILabel *synopsisLabel;
 
 @end
@@ -21,10 +22,24 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setTitle:[self getTitle]];
+    [self setUpSynopsisScrollViewAndLabel];
     [self setUpPosterImage];
+}
+
+- (void)setUpSynopsisScrollViewAndLabel {
     self.synopsisLabel.text = self.movie[@"synopsis"];
     [self.synopsisLabel sizeToFit];
-    self.synopsisLabelContainer.contentSize = CGSizeMake(self.synopsisLabel.bounds.size.width, self.synopsisLabel.bounds.size.height);
+
+    CGRect synopsisLabelContainerFrame = self.synopsisLabelContainer.frame;
+    self.synopsisLabelContainer.frame = CGRectMake(synopsisLabelContainerFrame.origin.x,
+                                                   synopsisLabelContainerFrame.origin.y,
+                                                   synopsisLabelContainerFrame.size.width,
+                                                   self.synopsisLabel.frame.size.height + 40);
+
+    CGFloat distanceFromTop = self.synopsisLabelContainer.frame.origin.y;
+    self.synopsisScrollView.contentSize = CGSizeMake(self.synopsisLabelContainer.frame.size.width,
+                                                     self.synopsisLabelContainer.frame.size.height + distanceFromTop);
+
 }
 
 - (NSString *)getTitle {

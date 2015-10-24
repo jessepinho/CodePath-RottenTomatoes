@@ -2,7 +2,7 @@
 
 This is a movies app displaying box office and top rental DVDs using the [Rotten Tomatoes API](http://developer.rottentomatoes.com/docs/read/JSON).
 
-Time spent: 5 hours
+Time spent: 6 hours
 
 ### Features
 
@@ -23,6 +23,9 @@ Time spent: 5 hours
 - [ ] Customize the navigation bar.
 - [ ] Add a tab bar for Box Office and DVD.
 - [X] Add a search bar: pretty simple implementation of searching against the existing table view data.
+
+#### Additional
+- [X] The synopsis label enlarges as the user scrolls through it.
 
 ### Walkthrough
 ![Video Walkthrough](http://i.imgur.com/9ktav2s.gif)
