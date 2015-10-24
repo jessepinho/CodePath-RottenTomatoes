@@ -12,11 +12,13 @@
 #import "MovieDetailsViewController.h"
 #import <KVNProgress/KVNProgress.h>
 
-@interface MoviesViewController () <UITableViewDataSource, UITableViewDelegate>
-@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@interface MoviesViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate>
+@property (weak, nonatomic) IBOutlet UITableView *movieTableView;
 @property (strong, nonatomic) NSArray *movies;
+@property (strong, nonatomic) NSString *search;
 @property (nonatomic) BOOL errorLoading;
 @property (strong, nonatomic) UIRefreshControl *refreshControl;
+@property (weak, nonatomic) IBOutlet UISearchBar *movieSearchBar;
 
 @end
 
@@ -24,9 +26,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.tableView.dataSource = self;
-    self.tableView.delegate = self;
+
+    self.movieTableView.dataSource = self;
+    self.movieTableView.delegate = self;
     self.title = @"Movies";
+    self.movieSearchBar.delegate = self;
+
     [self setUpRefreshControl];
     [self fetchMoviesForFirstTime];
 }
@@ -62,16 +67,16 @@
                                                 } else {
                                                     self.errorLoading = YES;
                                                 }
-                                                [self.tableView reloadData];
+                                                [self.movieTableView reloadData];
                                             }];
     [task resume];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (self.errorLoading) {
-        return 1 + self.movies.count;
+        return 1 + [self filteredMovies].count;
     } else {
-        return self.movies.count;
+        return [self filteredMovies].count;
     }
 }
 
@@ -79,15 +84,15 @@
     NSInteger rowNumber = indexPath.row;
     if (self.errorLoading) {
         if (indexPath.row == 0) {
-            UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"errorCell"];
+            UITableViewCell *cell = [self.movieTableView dequeueReusableCellWithIdentifier:@"errorCell"];
             return cell;
         }
         rowNumber -= 1;
     }
-    MoviesTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"movieCell"];
-    cell.titleLabel.text = self.movies[rowNumber][@"title"];
-    cell.synopsisLabel.text = self.movies[rowNumber][@"synopsis"];
-    NSURL *url = [NSURL URLWithString:self.movies[rowNumber][@"posters"][@"thumbnail"]];
+    MoviesTableViewCell *cell = [self.movieTableView dequeueReusableCellWithIdentifier:@"movieCell"];
+    cell.titleLabel.text = [self filteredMovies][rowNumber][@"title"];
+    cell.synopsisLabel.text = [self filteredMovies][rowNumber][@"synopsis"];
+    NSURL *url = [NSURL URLWithString:[self filteredMovies][rowNumber][@"posters"][@"thumbnail"]];
     [cell.posterImageView setImageWithURL:url];
 
     return cell;
@@ -101,16 +106,16 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self.movieTableView deselectRowAtIndexPath:indexPath animated:YES];
     MovieDetailsViewController *vc = [[MovieDetailsViewController alloc] init];
-    vc.movie = self.movies[indexPath.row];
+    vc.movie = [self filteredMovies][indexPath.row];
     [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)setUpRefreshControl {
     self.refreshControl = [[UIRefreshControl alloc] init];
     [self.refreshControl addTarget:self action:@selector(fetchMoviesFromRefreshControl) forControlEvents:UIControlEventValueChanged];
-    [self.tableView addSubview:self.refreshControl];
+    [self.movieTableView addSubview:self.refreshControl];
 }
 
 - (void)fetchMoviesFromRefreshControl {
@@ -124,4 +129,18 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    self.search = searchText;
+    [self.movieTableView reloadData];
+}
+
+- (NSArray *)filteredMovies {
+    if (!self.search || [self.search isEqualToString:@""]) {
+        return self.movies;
+    }
+    NSPredicate *movieSearch = [NSPredicate predicateWithBlock:^BOOL(id  _Nonnull movie, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return [movie[@"title"] rangeOfString:self.search options:NSCaseInsensitiveSearch].location != NSNotFound;
+    }];
+    return [self.movies filteredArrayUsingPredicate:movieSearch];
+}
 @end
