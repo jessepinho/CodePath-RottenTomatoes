@@ -28,7 +28,7 @@ Time spent: 6 hours
 - [X] The synopsis label enlarges as the user scrolls through it.
 
 ### Walkthrough
-![Video Walkthrough](http://i.imgur.com/9ktav2s.gif)
+![Video Walkthrough](http://i.imgur.com/oS8IK1F.gif)
 
 Credits
 ---------
